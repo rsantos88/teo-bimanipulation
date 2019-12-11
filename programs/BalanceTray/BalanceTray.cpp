@@ -24,7 +24,6 @@ bool BalanceTray::configure(yarp::os::ResourceFinder &rf)
         printf("\t--robot: %s [%s]\n",robot.c_str(),DEFAULT_ROBOT);
         printf("\t--mode: %s [%s] (select: jr3Balance / keyboard / testMov )\n", mode.c_str(), DEFAULT_MODE);
         printf("\t--jr3ToCsv: to export data read by JR3 sensors\n");
-        printf("\t--speak \n""");
         ::exit(0);
     }
 
@@ -34,13 +33,6 @@ bool BalanceTray::configure(yarp::os::ResourceFinder &rf)
     testMov    = false;
     jr3ToCsv   = false;
 
-    // speak sentences
-    speak = false;
-
-    // initialice variables
-    //rightArmTrajThread = 0;
-    //leftArmTrajThread = 0;
-    //fp = 0;
 
     /** Configure different MODES of the application **/
     if(mode == "jr3Balance")
@@ -71,12 +63,6 @@ bool BalanceTray::configure(yarp::os::ResourceFinder &rf)
         jr3ToCsv = true;
     }
 
-    if(rf.check("speak"))
-    {
-        CD_INFO_NO_HEADER("Mode SPEAK [activated]\n");
-        speak = true;
-    }
-    else CD_INFO_NO_HEADER("Mode SPEAK [deactivated]\n");
 
 
     std::string balanceTrayStr("/balanceTray");
@@ -322,11 +308,6 @@ bool BalanceTray::configure(yarp::os::ResourceFinder &rf)
     rightArmICartesianSolver->appendLink(twist_right_N_T);
     leftArmICartesianSolver->appendLink(twist_left_N_T);
 
-    // ----- Configuring Speech -----
-    if(speak){
-        dialogueManager = new DialogueManager("spanish");
-        dialogueManager->ttsSay("Demostracion de bandeja iniciada");
-    }
 
     // Start operations:
     if(homePosition())
@@ -335,7 +316,6 @@ bool BalanceTray::configure(yarp::os::ResourceFinder &rf)
         printFKinAA();
     }
 
-    if (speak) dialogueManager->ttsSay("Por favor, coloca la bandeja en mis manos, y cuando este lista, pulsa cualquier tecla para comenzar");
 
     CD_WARNING_NO_HEADER("Press a key to CALIBRATE SENSORS ..\n");
     getchar();
@@ -355,16 +335,12 @@ bool BalanceTray::configure(yarp::os::ResourceFinder &rf)
     CD_WARNING_NO_HEADER("Put the tray or and object and press a Key...\n");
     getchar();
 
-    if (speak) dialogueManager->ttsSay("un momento por favor");
-
     if(!configArmsToPositionDirect()) {
         CD_ERROR("Configuring drivers to Position Direct\n");
         return false;
     }
 
     CD_SUCCESS("Configured to Position Direct\n");
-
-    if (speak) dialogueManager->ttsSay("Sensores de fuerza par calibrados. Que comience el juego");
 
     // start reading and sending information thread: JR3/keyboard (10ms) -> BalanceThread (50ms)
     this->start();
@@ -444,7 +420,6 @@ double BalanceTray::getPeriod()
 
 bool BalanceTray::updateModule()
 {
-   if (speak) dialogueManager->talkTrayStatus(sensorValues,rdsxaa,ldsxaa);
    return true;
 }
 

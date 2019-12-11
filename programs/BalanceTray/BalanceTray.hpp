@@ -9,7 +9,6 @@
 #include <ICartesianTrajectory.hpp>
 #include <KdlTrajectory.hpp>
 #include "KinematicRepresentation.hpp"
-#include "DialogueManager.hpp"
 
 #include "TrajectoryThread.hpp"
 #include "BalanceThread.hpp"
@@ -54,9 +53,6 @@ namespace teo
             bool keyboard;
             bool jr3ToCsv;
 
-
-            /** with speech **/
-            bool speak;
 
             /** Operating mode: jr3Balance / keyboard / jr3Check2Csv **/
             std::string mode;
@@ -179,9 +175,6 @@ namespace teo
 
             /** Current time **/
             double initTime;
-
-            /** Dialogue manager */
-            DialogueManager *dialogueManager;
 
             /** Thread run */
             virtual bool threadInit();
