@@ -64,7 +64,6 @@ bool BalanceTray::configure(yarp::os::ResourceFinder &rf)
     }
 
 
-
     std::string balanceTrayStr("/balanceTray");
 
     // ------ ANALOG SENSOR ------   
@@ -152,7 +151,7 @@ bool BalanceTray::configure(yarp::os::ResourceFinder &rf)
       return false;
     }
 
-    // connecting our device with "IEncoders" interface   
+    // connecting our device with "IEncoders" interface
     if (!leftArmDevice.view(leftArmIEncoders) ) {
         CD_ERROR("Problems acquiring leftArmIEncoders interface\n");
         return false;
@@ -224,8 +223,6 @@ bool BalanceTray::configure(yarp::os::ResourceFinder &rf)
         return false;
     }
 
-    CD_SUCCESS("Acquired rightArmICartesianSolver interface\n");
-
 
     // ----- Configuring KDL Solver for left-arm -----
 
@@ -261,15 +258,11 @@ bool BalanceTray::configure(yarp::os::ResourceFinder &rf)
         return false;
     }
 
-    CD_SUCCESS("Acquired rightArmICartesianSolver interface\n");
-
     if( ! leftArmSolverDevice.view(leftArmICartesianSolver) )
     {
         CD_ERROR("Could not view iCartesianSolver in KDLSolver\n");
         return false;
     }
-
-    CD_SUCCESS("Acquired leftArmICartesianSolver interface\n");
 
 
     // ** Unify TCP of right-arm and left-arm: apppending link to the tray's centroid
@@ -317,11 +310,11 @@ bool BalanceTray::configure(yarp::os::ResourceFinder &rf)
     }
 
 
-    CD_WARNING_NO_HEADER("Press a key to CALIBRATE SENSORS ..\n");
-    getchar();
-
     // Calibrate sensor ... JR3
     if(jr3Balance || jr3ToCsv){
+
+        CD_WARNING_NO_HEADER("Press a key to CALIBRATE SENSORS ..\n");
+        getchar();
         CD_INFO("\n");
         int ret = iAnalogSensor->calibrateSensor();        
         if(ret!=0){
@@ -572,25 +565,6 @@ bool BalanceTray::configArmsToPosition(double sp, double acc){
 bool BalanceTray::configArmsToPositionDirect(){
 
         CD_INFO("Configuring drivers to Position Direct...\n");
-        /* This is used with external reference implementation in yarp-devices
-         * This APP is working well with old-pt mode
-        if(robot=="teo"){ // if we are using the robot, better use PT Mode
-            yarp::os::Bottle val;
-            yarp::os::Bottle & b = val.addList();
-            b.addInt32(PT_MODE_MS);
-
-            if(! rightArmIRemoteVariables->setRemoteVariable("ptModeMs", val)){
-                CD_ERROR("Problems setting ptModeMs remote variable of: right-arm\n");
-                return false;
-            }
-
-            if(! leftArmIRemoteVariables->setRemoteVariable("ptModeMs", val)){
-                CD_ERROR("Problems setting ptModeMs remote variable of: left-arm\n");
-                return false;
-            }
-        }
-        */
-        // if there is no ptModeMs (=0), it's activate the external reference
         std::vector<int> rightArmControlModes(numRightArmJoints,VOCAB_CM_POSITION_DIRECT);
         if(! rightArmIControlMode->setControlModes(rightArmControlModes.data())){
             CD_ERROR("Problems setting POSITION DIRECT mode of: right-arm\n");
@@ -628,17 +602,14 @@ bool BalanceTray::moveJointsInPosition(std::vector<double> &rightArm, std::vecto
     while(!doneRight)
     {
         yarp::os::Time::delay(0.1);
-        rightArmIPositionControl->checkMotionDone(&doneRight);
-        CD_DEBUG("!doneRight\n");
+        rightArmIPositionControl->checkMotionDone(&doneRight);        
     }
 
     while(!doneLeft)
     {
         yarp::os::Time::delay(0.1);
-        leftArmIPositionControl->checkMotionDone(&doneLeft);
-        CD_DEBUG("!doneLeft\n");
+        leftArmIPositionControl->checkMotionDone(&doneLeft);        
     }
-
 
     return true;
 }
